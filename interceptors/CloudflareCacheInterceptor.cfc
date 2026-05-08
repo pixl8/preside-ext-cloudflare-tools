@@ -16,11 +16,12 @@ component extends="coldbox.system.Interceptor" {
 		}
 
 		var taskId = createTask(
-			  event      = "admin.CloudflareTools.clearAssetCacheInBgThread"
-			, args       = { assetIds=assetIds }
-			, runNow     = true
-			, adminOwner = event.getAdminUserId()
-			, title      = translateResource( uri="cloudflareTools:cachePurge.task.title" )
+			  event             = "admin.CloudflareTools.clearAssetCacheInBgThread"
+			, args              = { assetIds=assetIds }
+			, runNow            = true
+			, discardOnComplete = true
+			, adminOwner        = event.getAdminUserId()
+			, title             = translateResource( uri="cloudflareTools:cachePurge.task.title" )
 		);
 	}
 
@@ -31,11 +32,12 @@ component extends="coldbox.system.Interceptor" {
 
 		var folderId = arguments.interceptData.folderId ?: "";
 		var taskId   = createTask(
-			  event      = "admin.CloudflareTools.clearFolderCacheInBgThread"
-			, args       = { folderId=folderId }
-			, runNow     = true
-			, adminOwner = event.getAdminUserId()
-			, title      = translateResource( uri="cloudflareTools:cachePurge.task.title" )
+			  event             = "admin.CloudflareTools.clearFolderCacheInBgThread"
+			, args              = { folderId=folderId }
+			, runNow            = true
+			, discardOnComplete = true
+			, adminOwner        = event.getAdminUserId()
+			, title             = translateResource( uri="cloudflareTools:cachePurge.task.title" )
 		);
 	}
 
