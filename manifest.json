@@ -1,0 +1,7 @@
+{
+	  "id"        : "preside-ext-cloudflare-tools"
+	, "title"     : "Cloudflare Tools"
+	, "author"    : "Pixl8 Group"
+	, "version"   : "$VERSION_NUMBER"
+	, "dependsOn" : []
+}

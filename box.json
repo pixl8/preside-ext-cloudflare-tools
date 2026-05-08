@@ -1,0 +1,23 @@
+{
+	"name":"Preside Extension: Cloudflare Tools",
+	"type":"preside-extensions",
+	"version":"$VERSION_NUMBER",
+	"location":"$DOWNLOAD_URL",
+	"private":false,
+	"author":"Pixl8 Group",
+	"directory":"application/extensions",
+	"shortDescription":"The Cloudflare Tools extension integrates with the Cloudflare API to provide cache management etc.",
+	"description":"The Cloudflare Tools extension integrates with the Cloudflare API to provide cache management etc.",
+	"repository":{
+		"type":"git",
+		"URL":"https://github.com/pixl8/preside-ext-cloudflare-tools"
+	},
+	"slug":"preside-ext-cloudflare-tools",
+	"projectURL":"https://github.com/pixl8/preside-ext-cloudflare-tools",
+	"ignore":[
+		".git/*",
+		".gitignore",
+		".github/*",
+		".twgit_features_subject"
+	]
+}
