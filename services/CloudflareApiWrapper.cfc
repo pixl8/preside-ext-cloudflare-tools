@@ -73,23 +73,29 @@ component {
 		,          struct params = {}
 		,          struct body   = {}
 	) {
-		var result     = "";
+		var httpResult = "";
 		var apiToken   = _getApiToken( arguments.token );
 		var apiUrl     = _buildApiUrl( arguments.endpoint );
 		var authHeader = "Bearer #apiToken#";
 
-		http url=apiUrl method=arguments.method throwonerror=true result="result" {
-			httpparam type="header" name="Authorization" value=authHeader;
+		try {
+			http url=apiUrl method=arguments.method throwonerror=true result="httpResult" {
+				httpparam type="header" name="Authorization" value=authHeader;
 
-			for( var param in arguments.params ) {
-				httpparam type="url" name="#param#" value=arguments.params[ param ];
-			}
-			if ( StructCount( arguments.body ) ) {
-				httpparam type="body" value="#SerializeJson( arguments.body )#";
+				for( var param in arguments.params ) {
+					httpparam type="url" name="#param#" value=arguments.params[ param ];
+				}
+				if ( StructCount( arguments.body ) ) {
+					httpparam type="body" value="#SerializeJson( arguments.body )#";
+				}
 			}
 		}
+		catch( any e ) {
+			$raiseError( e );
+			return { success=false, error=e.message };
+		}
 
-		return DeserializeJson( result.filecontent ?: "" );
+		return DeserializeJson( httpResult.filecontent );
 	}
 
 	/**
