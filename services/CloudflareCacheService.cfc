@@ -4,10 +4,10 @@
  */
 component {
 
-	property name="apiWrapper"  inject="CloudflareApiWrapper";
-	property name="zoneService" inject="CloudflareZoneService";
-	property name="publicUrl"   inject="coldbox:setting:assetmanager.storage.publicUrl";
-	property name="apiTokens"   inject="coldbox:setting:cloudflare.apiTokens";
+	property name="apiWrapper"           inject="CloudflareApiWrapper";
+	property name="zoneService"          inject="CloudflareZoneService";
+	property name="apiTokens"            inject="coldbox:setting:cloudflare.apiTokens";
+	property name="assetStorageProvider" inject="assetStorageProvider";
 
 	public any function init() {
 		// Cloudflare limits purge requests for URL and prefix to 100 items per request
@@ -27,12 +27,13 @@ component {
 			return;
 		}
 
-		var sites = $getPresideObject( "site" ).selectData(
+		var assetRoot = _getAssetRoot();
+		var sites     = $getPresideObject( "site" ).selectData(
 			  filter       = { deleted=false }
 			, selectFields = [ "domain" ]
 			, distinct     = true
 		);
-$helpers?.dumplog( sites=sites, publicUrl=publicUrl );
+$helpers?.dumplog( sites=sites, assetRoot=assetRoot );
 
 		for( var site in sites ) {
 			var prefixes = [];
@@ -42,7 +43,7 @@ $helpers?.dumplog( sites=sites, publicUrl=publicUrl );
 				continue;
 			}
 			for( var assetId in arguments.assetIds ) {
-				ArrayAppend( prefixes, site.domain & publicUrl & "/" & LCase( assetId ) );
+				ArrayAppend( prefixes, site.domain & assetRoot & LCase( assetId ) );
 			}
 $helpers?.dumplog( prefixes=prefixes );
 			// Split into batches to comply with Cloudflare's per-request limit
@@ -85,4 +86,12 @@ $helpers?.dumplog( result=result );
 	}
 
 
+	private string function _getAssetRoot() {
+		if ( StructKeyExists( variables, "assetRoot" ) ) {
+			return variables.assetRoot;
+		}
+
+		variables.assetRoot = assetStorageProvider.getObjectUrl( path="" );
+		return variables.assetRoot;
+	}
 }
