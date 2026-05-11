@@ -32,24 +32,51 @@ component {
 	}
 
 	/**
-	 * Purges cached assets for the given zone whose URLs start with any of the supplied prefixes.
-	 * Calls POST /zones/<zone_id>/purge_cache with a JSON body { "prefixes": [...] }.
+	 * Looks up a zone by ID via GET /zones/<zone_id>
+	 * Uses the cachePurge API token from application settings.
 	 *
-	 * @param zoneId Cloudflare zone identifier
-	 * @param prefixes URL path prefixes to purge (for example ["example.com/assets"] )
-	 * @return full JSON response struct from the Cloudflare API
+	 * @return the returned zone data as a struct, or an empty struct if not found
 	 */
-	public struct function purgeCacheByPrefixes( required string zoneId, required array prefixes ) {
+	public struct function getZoneById( required string zoneId ) {
 		var result = _apiCall(
-			  endpoint = "zones/#arguments.zoneId#/purge_cache"
+			  endpoint = "zones/#arguments.zoneId#"
 			, token    = "cachePurge"
-			, method   = "POST"
-			, body     = { prefixes=arguments.prefixes }
 		);
 
-		return result;
+		return result.result ?: {};
 	}
 
+	/**
+	 * Purges cache for the given zone
+	 * Calls POST /zones/<zone_id>/purge_cache with a JSON body
+	 *
+	 * @param zoneId    Cloudflare zone identifier
+	 * @param purgeAll  Purge everything for the given zone
+	 * @param files     Full files paths to purge (for example ["http://www.example.com/css/styles.css"] )
+	 * @param prefixes  URL path prefixes to purge (for example ["example.com/assets"] )
+	 * @return full JSON response struct from the Cloudflare API
+	 */
+	public struct function purgeCache( required string zoneId, boolean purgeAll=false, array files=[], array prefixes=[] ) {
+		var body = {};
+		if ( arguments.purgeAll ) {
+			body.purge_everything = true;
+		} else if ( ArrayLen( arguments.files ) ) {
+			body.files = arguments.files;
+		} else if ( ArrayLen( arguments.prefixes ) ) {
+			body.prefixes = arguments.prefixes;
+		}
+
+		if ( StructCount( body ) ) {
+			return _apiCall(
+				  endpoint = "zones/#arguments.zoneId#/purge_cache"
+				, token    = "cachePurge"
+				, method   = "POST"
+				, body     = body
+			);
+		}
+
+		return {};
+	}
 
 
 // PRIVATE METHODS
@@ -86,16 +113,18 @@ component {
 					httpparam type="url" name="#param#" value=arguments.params[ param ];
 				}
 				if ( StructCount( arguments.body ) ) {
-					httpparam type="body" value="#SerializeJson( arguments.body )#";
+					httpparam type="header" name="Content-Type" value="application/json";
+					httpparam type="body"   value="#SerializeJson( arguments.body )#";
 				}
 			}
+
+			return DeserializeJson( httpResult.filecontent );
 		}
 		catch( any e ) {
 			$raiseError( e );
-			return { success=false, error=e.message };
 		}
 
-		return DeserializeJson( httpResult.filecontent );
+		return { success=false, error=e.message };
 	}
 
 	/**

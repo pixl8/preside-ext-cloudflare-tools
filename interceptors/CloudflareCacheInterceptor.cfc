@@ -1,11 +1,11 @@
 component extends="coldbox.system.Interceptor" {
 
-	property name="cloudflareToolsService" inject="delayedInjector:CloudflareToolsService";
+	property name="cloudflareCacheService" inject="delayedInjector:CloudflareCacheService";
 
 	public void function configure() {}
 
 	public void function onClearAssetDerivatives( required any event, required struct interceptData ) {
-		if ( !cloudflareToolsService.isConfigured( "cachePurge" ) ) {
+		if ( !cloudflareCacheService.isConfigured( "cachePurge" ) ) {
 			return;
 		}
 
@@ -15,8 +15,8 @@ component extends="coldbox.system.Interceptor" {
 			assetIds = Len( assetIds ) ? [ assetIds ] : [];
 		}
 
-		var taskId = createTask(
-			  event             = "admin.CloudflareTools.clearAssetCacheInBgThread"
+		createTask(
+			  event             = "admin.CloudflareTools.purgeAssetsInBgThread"
 			, args              = { assetIds=assetIds }
 			, runNow            = true
 			, discardOnComplete = true
@@ -26,13 +26,14 @@ component extends="coldbox.system.Interceptor" {
 	}
 
 	public void function onClearFolderDerivatives( required any event, required struct interceptData ) {
-		if ( !cloudflareToolsService.isConfigured( "cachePurge" ) ) {
+		if ( !cloudflareCacheService.isConfigured( "cachePurge" ) ) {
 			return;
 		}
 
 		var folderId = arguments.interceptData.folderId ?: "";
-		var taskId   = createTask(
-			  event             = "admin.CloudflareTools.clearFolderCacheInBgThread"
+
+		createTask(
+			  event             = "admin.CloudflareTools.purgeAssetFolderInBgThread"
 			, args              = { folderId=folderId }
 			, runNow            = true
 			, discardOnComplete = true
