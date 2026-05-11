@@ -33,7 +33,6 @@ component {
 			, selectFields = [ "domain" ]
 			, distinct     = true
 		);
-$helpers?.dumplog( sites=sites, assetRoot=assetRoot );
 
 		for( var site in sites ) {
 			var prefixes = [];
@@ -45,13 +44,12 @@ $helpers?.dumplog( sites=sites, assetRoot=assetRoot );
 			for( var assetId in arguments.assetIds ) {
 				ArrayAppend( prefixes, site.domain & assetRoot & LCase( assetId ) );
 			}
-$helpers?.dumplog( prefixes=prefixes );
+
 			// Split into batches to comply with Cloudflare's per-request limit
 			var prefixCount = ArrayLen( prefixes );
 			for( var start=1; start<=prefixCount; start+=variables.batchSize ) {
 				var batch = ArraySlice( prefixes, start, Min( variables.batchSize, prefixCount - start + 1 ) );
-				var result = apiWrapper.purgeCache( zoneId=zoneId, prefixes=batch );
-$helpers?.dumplog( result=result );
+				apiWrapper.purgeCache( zoneId=zoneId, prefixes=batch );
 			}
 		}
 	}
@@ -86,12 +84,17 @@ $helpers?.dumplog( result=result );
 	}
 
 
+	/**
+	 * Returns the root asset URL path from the asset storage provider.
+	 * By default, this will be /uploads/assets/, but may have been overridden in settings
+	 *
+	 * @return string
+	 */
 	private string function _getAssetRoot() {
-		if ( StructKeyExists( variables, "assetRoot" ) ) {
-			return variables.assetRoot;
+		if ( !StructKeyExists( variables, "assetRoot" ) ) {
+			variables.assetRoot = assetStorageProvider.getObjectUrl( "" );
 		}
 
-		variables.assetRoot = assetStorageProvider.getObjectUrl( path="" );
 		return variables.assetRoot;
 	}
 }
