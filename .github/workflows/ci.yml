@@ -12,6 +12,11 @@ jobs:
           branch=${GITHUB_REF##*/}
           publish=false
           if [[ "${ github.event_name }}" != "pull_request" ]] ; then
+            echo "Not a pull request"
+          else
+            echo "A pull request"
+          fi
+          if [[ "${ github.event_name }}" != "pull_request" ]] ; then
             if [[ $branch == release-* ]] || [[ $branch == v* ]] ; then
               publish=true
             fi
