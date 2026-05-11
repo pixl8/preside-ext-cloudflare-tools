@@ -1,12 +1,12 @@
 component extends="preside.system.base.AdminHandler" {
 
-	property name="cloudflareToolsService" inject="delayedInjector:CloudflareToolsService";
+	property name="cloudflareCacheService" inject="delayedInjector:CloudflareCacheService";
 
-	private void function clearAssetCacheInBgThread( event, rc, prc, args={} ) {
-		cloudflareToolsService.clearAssetCache( assetIds=args.assetIds );
+	private void function purgeAssetsInBgThread( event, rc, prc, args={} ) {
+		cloudflareCacheService.purgeAssets( assetIds=args.assetIds );
 	}
 
-	private void function clearFolderCacheInBgThread( event, rc, prc, args={} ) {
-		cloudflareToolsService.clearFolderCache( folderId=args.folderId );
+	private void function purgeAssetFolderInBgThread( event, rc, prc, args={} ) {
+		cloudflareCacheService.purgeAssetFolder( folderId=args.folderId );
 	}
 }
