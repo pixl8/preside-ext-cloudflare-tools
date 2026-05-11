@@ -32,6 +32,7 @@ component {
 			, selectFields = [ "domain" ]
 			, distinct     = true
 		);
+$helpers?.dumplog( sites=sites, publicUrl=publicUrl );
 
 		for( var site in sites ) {
 			var prefixes = [];
@@ -43,12 +44,13 @@ component {
 			for( var assetId in arguments.assetIds ) {
 				ArrayAppend( prefixes, site.domain & publicUrl & "/" & LCase( assetId ) );
 			}
-
+$helpers?.dumplog( prefixes=prefixes );
 			// Split into batches to comply with Cloudflare's per-request limit
 			var prefixCount = ArrayLen( prefixes );
 			for( var start=1; start<=prefixCount; start+=variables.batchSize ) {
 				var batch = ArraySlice( prefixes, start, Min( variables.batchSize, prefixCount - start + 1 ) );
-				apiWrapper.purgeCache( zoneId=zoneId, prefixes=batch );
+				var result = apiWrapper.purgeCache( zoneId=zoneId, prefixes=batch );
+$helpers?.dumplog( result=result );
 			}
 		}
 	}
