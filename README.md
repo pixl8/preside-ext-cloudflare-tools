@@ -17,6 +17,15 @@ For cache purging, you will need a *Cloudflare API token*. The token you need is
 * *Continue to summary* then *Create Token*
 * Make a record of your token, which will start with `cfut_`
 
+The functionality depends on newly-added interception points in Preside, so you will need a minimum of one of the following versions of Preside:
+
+* 10.30.23
+* 10.29.40
+* 10.28.62
+* 10.27.98
+* 10.26.127
+
+
 ## Setup
 
 You can provide your application with the token in one of two ways:
